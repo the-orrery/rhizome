@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from kb import contract
-from kb.contract import ContractError
+from rhizome import contract
+from rhizome.contract import ContractError
 
 
 def _mini_parse_frontmatter(text: str) -> dict:
@@ -167,6 +169,36 @@ class TestRender(unittest.TestCase):
     def test_asset_prefix(self):
         self.assertEqual(contract.asset_prefix("data:group/dataId#v3"), "data")
         self.assertIsNone(contract.asset_prefix("missing-prefix"))
+
+    def test_known_asset_prefixes_default_is_public_set(self):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop(contract.ASSET_PREFIXES_ENV, None)
+            known = contract.known_asset_prefixes()
+        self.assertEqual(known, frozenset(contract.ASSET_PREFIXES))
+
+    def test_known_asset_prefixes_env_additive(self):
+        # Project-specific prefixes are injected via env (never hard-coded in
+        # the public source); the effective set is default + env.
+        with mock.patch.dict(os.environ, {contract.ASSET_PREFIXES_ENV: "alpha,beta"}):
+            known = contract.known_asset_prefixes()
+        self.assertTrue(frozenset(contract.ASSET_PREFIXES) <= known)
+        self.assertIn("alpha", known)
+        self.assertIn("beta", known)
+
+    def test_known_asset_prefixes_env_robust_parsing(self):
+        with mock.patch.dict(
+            os.environ, {contract.ASSET_PREFIXES_ENV: " alpha , , beta,,GAMMA "}
+        ):
+            known = contract.known_asset_prefixes()
+        self.assertIn("alpha", known)
+        self.assertIn("beta", known)
+        self.assertIn("gamma", known)  # lowercased to match asset_prefix()
+        self.assertNotIn("", known)
+
+    def test_known_asset_prefixes_empty_env_is_default(self):
+        with mock.patch.dict(os.environ, {contract.ASSET_PREFIXES_ENV: "   "}):
+            known = contract.known_asset_prefixes()
+        self.assertEqual(known, frozenset(contract.ASSET_PREFIXES))
 
     def test_keyword_with_comma_is_quoted(self):
         # (commas can't arrive via CLI csv-split, but render must stay valid)
