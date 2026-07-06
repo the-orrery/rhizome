@@ -46,6 +46,13 @@ class TestValidation(unittest.TestCase):
             with self.assertRaises(ContractError):
                 contract.validate_topic(bad)
 
+    def test_slug_excess_words(self):
+        self.assertEqual(contract.slug_excess_words("a-b-c-d-e-f"), 0)
+        self.assertEqual(contract.slug_excess_words("a-b-c-d-e-f-g"), 1)
+        self.assertEqual(
+            contract.slug_excess_words("adr-043-kb-readership-layering-no-rename"), 0
+        )
+
     def test_description_required_and_single_line(self):
         with self.assertRaises(ContractError):
             contract.validate_description("   ")
