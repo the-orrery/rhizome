@@ -32,10 +32,10 @@ from . import check, contract, doctor, sources, telemetry
 from .contract import ContractError
 from .telemetry import STDERR_CAP, STDOUT_CAP, Tee
 
+from orrery_heartbeat import check_update
+
 
 class CliError(Exception):
-
-from orrery_heartbeat import check_update
     """User-facing CLI failure (bad path, existing file, no domain, ...)."""
 
 
