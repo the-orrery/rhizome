@@ -17,12 +17,10 @@ class TestConfig(unittest.TestCase):
             self.assertEqual(config.load_config(), {})
 
     def test_explicit_missing_config_errors(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            with mock.patch.dict(
-                os.environ, {"RHIZOME_CONFIG": str(Path(tmp) / "missing.toml")}
-            ):
-                with self.assertRaises(config.ConfigError):
-                    config.load_config()
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(
+            os.environ, {"RHIZOME_CONFIG": str(Path(tmp) / "missing.toml")}
+        ), self.assertRaises(config.ConfigError):
+            config.load_config()
 
     def test_mermaid_validator_dir_comes_from_config(self):
         with tempfile.TemporaryDirectory() as tmp:
