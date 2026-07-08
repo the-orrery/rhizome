@@ -407,9 +407,9 @@ def _relocate_exempt(repo_root: Path, op: str, parts: list[str], head: str) -> b
     # within-repo: prove the relocated copy is staged here, byte-for-byte.
     new_rel = parts[2] if op == "R" and len(parts) > 2 else rec["new_rel"]
     staged = _git_staged_text(repo_root, new_rel)
-    return staged is not None and relocate.content_hash(staged) == relocate.content_hash(
-        head
-    )
+    return staged is not None and relocate.content_hash(
+        staged
+    ) == relocate.content_hash(head)
 
 
 def staged_frozen_findings(repo_root: Path) -> list[Finding]:
