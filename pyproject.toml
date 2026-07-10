@@ -36,6 +36,7 @@ dev = [
     "pytest>=9.1.1",
     "poethepoet",
 ]
+freeze = ["pyinstaller>=6.0,<7"]
 
 [tool.poe.tasks]
 lint = "uvx ruff@0.15.16 check ."
@@ -43,6 +44,7 @@ fmt = "uvx ruff@0.15.16 format ."
 typecheck = "uv run --with pyrefly==1.0.0 pyrefly check"
 test = "pytest"
 check = { sequence = ["lint", "typecheck", "test"], help = "lint + typecheck + test" }
+freeze = { cmd = "./scripts/build-release.sh", help = "build the self-contained rhizome release binary" }
 
 [tool.ruff]
 line-length = 88
