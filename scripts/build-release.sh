@@ -38,6 +38,9 @@ install -m 0755 \
   "${BUILD_DIR}/dist/rhizome" \
   "${OUTPUT_DIR}/rhizome-${platform}-${arch}"
 if [[ "${SKIP_SMOKE:-0}" != "1" ]]; then
-  "${OUTPUT_DIR}/rhizome-${platform}-${arch}" --help >/dev/null
+  smoke_root="$(mktemp -d)"
+  CI=1 ORRERY_NO_UPDATE_CHECK=1 XDG_DATA_HOME="${smoke_root}/data" XDG_CACHE_HOME="${smoke_root}/cache" \
+    "${OUTPUT_DIR}/rhizome-${platform}-${arch}" --help >/dev/null
+  rm -rf "${smoke_root}"
 fi
 printf 'built %s binary in %s\n' "${platform}-${arch}" "${OUTPUT_DIR}"
